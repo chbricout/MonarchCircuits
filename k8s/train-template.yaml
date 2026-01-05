@@ -14,6 +14,11 @@ spec:
       containers:
         - name: monarch-circuits
           image: chbricout/monarch-circuits:latest
+          env:
+            - name: CUDA_VISIBLE_DEVICES
+              value: "0"
+            - name: OMP_NUM_THREADS
+              value: "9"
           command:
             - sh
             - -c
@@ -23,10 +28,10 @@ spec:
               python experiments/run_image_exp.py $EXP_ARGS
           resources:
             requests:
-              cpu: 4
+              cpu: 9
               memory: "128Gi"
             limits:
-              cpu: 4
+              cpu: 9
               memory: "128Gi"
               nvidia.com/gpu: 1
           volumeMounts:
