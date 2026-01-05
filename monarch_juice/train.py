@@ -197,7 +197,6 @@ def construct_and_train_pc(rank, world_size, args):
             torch.cuda.reset_peak_memory_stats(device)
 
             x = x.to(device)
-            print(x.device)
             with torch.cuda.device(f"cuda:{device_list[rank]}"):
                 start = torch.cuda.Event(enable_timing=True)
                 end = torch.cuda.Event(enable_timing=True)
@@ -213,7 +212,7 @@ def construct_and_train_pc(rank, world_size, args):
                 )
 
                 end.record(torch.cuda.current_stream(device))
-                torch.cuda.synchronize(device)
+                # torch.cuda.synchronize(device)
                 train_mems.append(torch.cuda.max_memory_allocated(device))
                 train_step_time.append(start.elapsed_time(end) * 1e-3)
                 gc.enable()
@@ -265,7 +264,7 @@ def construct_and_train_pc(rank, world_size, args):
                 lls = pc(x)
 
                 end.record(torch.cuda.current_stream(device))
-                torch.cuda.synchronize(device)
+                # torch.cuda.synchronize(device)
                 val_mems.append(torch.cuda.max_memory_allocated(device))
                 val_step_time.append(start.elapsed_time(end) * 1e-3)
                 gc.enable()
