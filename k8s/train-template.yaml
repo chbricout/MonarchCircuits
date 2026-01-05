@@ -19,7 +19,7 @@ spec:
             - -c
             - |
               cd /code/MonarchCircuits
-              ls -l -a -h datasets
+              ls -l -a -h ../datasets
               python experiments/run_image_exp.py $EXP_ARGS
           resources:
             requests:
@@ -45,7 +45,7 @@ spec:
             - |
               cd /code
               git clone https://github.com/chbricout/MonarchCircuits.git
-              chown -R 1001:1001 /code/MonarchCircuits
+              chown -R 1001:1001 /code
           resources:
             requests:
               cpu: 1
@@ -56,6 +56,8 @@ spec:
           volumeMounts:
             - mountPath: /code
               name: github-code
+            - mountPath: /code/datasets
+              name: dataset
       volumes:
         - name: dataset
           persistentVolumeClaim:

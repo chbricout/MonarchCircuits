@@ -1,4 +1,4 @@
-Kind: PersistentVolumeClaim
+kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
  name: s2893001-monarch-output

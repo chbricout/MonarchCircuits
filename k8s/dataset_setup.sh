@@ -1,5 +1,9 @@
 # $1 is PVC name
 
+if [ "$1" = "" ]; then
+  echo "Missing PVC Name as first argument"
+fi
+
 file="imagenet_npz.zip"
 expected_sha="e7ce462672a7f7bbdb2591b5f6600c8647c36e2ab74e0265434169b171f2d09f"
 
@@ -18,7 +22,7 @@ if [ -f "$file" ]; then
 
     kubectl wait --for=condition=Ready "pod/$pod" --timeout=60s
 
-    rsync -Pavc --blocking-io --rsh ~/kubectl-rsh.sh $file "$pod":/data/ --progress --timeout=60
+    rsync -Pavc --blocking-io --rsh ~/kubectl-rsh.sh $file "$pod":/data/ --progress --timeout=120
     if [ $? -ne 0 ]; then
       echo "Rsync Failed !"
       exit 1
@@ -32,7 +36,7 @@ if [ -f "$file" ]; then
     fi
     echo "Dataset unziped"
 
-    kubectl exec "$pod" -- sh -c "mv /data/datasets/* /data/"
+    kubectl exec "$pod" -- sh -c "mv /data/datasets/* /data/; chmod -R o+r data/*"
     if [ $? -ne 0 ]; then
       echo "Moving dataset Failed !"
       exit 1
