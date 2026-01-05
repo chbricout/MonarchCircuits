@@ -1,0 +1,69 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: s2893001-monarch-circuit-
+  labels:
+    kueue.x-k8s.io/queue-name: eidf029ns-user-queue
+    eidf/user: s2893001-infk8s
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: monarch-circuits
+          image: chbricout/monarch-circuits:latest
+          command:
+            - sh
+            - -c
+            - |
+              cd /code/MonarchCircuits
+              ls -l -a -h datasets
+              python experiments/run_image_exp.py $EXP_ARGS
+          resources:
+            requests:
+              cpu: 4
+              memory: "128Gi"
+            limits:
+              cpu: 4
+              memory: "128Gi"
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - mountPath: /code
+              name: github-code
+            - mountPath: /code/datasets
+              name: dataset
+            - mountPath: /code/MonarchCircuits/output
+              name: output
+      initContainers:
+        - name: lightweight-git-container
+          image: cicirello/alpine-plus-plus
+          command:
+            - sh
+            - -c
+            - |
+              cd /code
+              git clone https://github.com/chbricout/MonarchCircuits.git
+              chown -R 1001:1001 /code/MonarchCircuits
+          resources:
+            requests:
+              cpu: 1
+              memory: "4Gi"
+            limits:
+              cpu: 1
+              memory: "8Gi"
+          volumeMounts:
+            - mountPath: /code
+              name: github-code
+      volumes:
+        - name: dataset
+          persistentVolumeClaim:
+            claimName: s2893001-monarch-imagenet-npz
+        - name: output
+          persistentVolumeClaim:
+            claimName: s2893001-monarch-output
+        - name: github-code
+          emptyDir:
+            sizeLimit: 20Gi
+

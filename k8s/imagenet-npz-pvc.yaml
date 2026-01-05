@@ -1,0 +1,16 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+ name: s2893001-monarch-imagenet-npz
+ namespace: eidf029ns
+ labels:
+  eidf/user: s2893001-infk8s
+spec:
+ accessModes:
+  - ReadWriteMany
+ resources:
+  requests:
+   storage: 50Gi
+ storageClassName: csi-cephfs-sc
+
+
