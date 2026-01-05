@@ -197,7 +197,6 @@ def construct_and_train_pc(rank, world_size, args):
             torch.cuda.reset_peak_memory_stats(device)
 
             x = x.to(device)
-            print(x.device)
             with torch.cuda.device(f"cuda:{device_list[rank]}"):
                 start = torch.cuda.Event(enable_timing=True)
                 end = torch.cuda.Event(enable_timing=True)
