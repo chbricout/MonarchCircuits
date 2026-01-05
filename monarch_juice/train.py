@@ -213,7 +213,7 @@ def construct_and_train_pc(rank, world_size, args):
                 )
 
                 end.record(torch.cuda.current_stream(device))
-                # torch.cuda.synchronize(device)
+                torch.cuda.synchronize(device)
                 train_mems.append(torch.cuda.max_memory_allocated(device))
                 train_step_time.append(start.elapsed_time(end) * 1e-3)
                 gc.enable()
@@ -265,7 +265,7 @@ def construct_and_train_pc(rank, world_size, args):
                 lls = pc(x)
 
                 end.record(torch.cuda.current_stream(device))
-                # torch.cuda.synchronize(device)
+                torch.cuda.synchronize(device)
                 val_mems.append(torch.cuda.max_memory_allocated(device))
                 val_step_time.append(start.elapsed_time(end) * 1e-3)
                 gc.enable()
