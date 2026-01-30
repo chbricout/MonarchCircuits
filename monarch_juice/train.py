@@ -107,7 +107,9 @@ def construct_model(dsets, lossless, layer_type, hidden_size):
         del model_config["params"]["input_dist"]
     else:
         input_dist = None
-    ns = HCLTGeneral(
+
+    print("Building HCLT with ", layer_fn.__name__, model_config["params"])
+    ns, _, _ = HCLTGeneral(
         **model_config["params"],
         **model_kwargs,
         input_dist=input_dist,
@@ -182,6 +184,7 @@ def construct_and_train_pc(rank, world_size, args):
     train_mems = []
     val_mems = []
 
+    lls_records = []
     for epoch in range(tot_epochs):
         if rank == 0:
             progress_bar.new_epoch_begin()
@@ -225,6 +228,18 @@ def construct_and_train_pc(rank, world_size, args):
                 curr_ll = stats[0].item() / world_size
                 progress_bar.new_batch_done([curr_ll])
 
+                lls_records.append(
+                    {
+                        "epoch": epoch,
+                        "step": (
+                            epoch
+                            + update_count * sizes[era] / len(train_loader.dataset)
+                        )
+                        / tot_epochs,
+                        "train_ll": curr_ll,
+                        "val_ll": None,
+                    }
+                )
             step_count += 1
             if step_count >= niters_per_update:
                 step_count = 0
@@ -277,6 +292,14 @@ def construct_and_train_pc(rank, world_size, args):
         if rank == 0:
             train_ll = progress_bar.epoch_ends()[0]
             val_ll = stats[0].item() / world_size / len(val_loader)
+            lls_records.append(
+                {
+                    "epoch": epoch,
+                    "step": epoch / tot_epochs,
+                    "train_ll": None,
+                    "val_ll": val_ll,
+                }
+            )
             print(
                 f"[Epoch {epoch + 1}/{tot_epochs}][train LL: {train_ll:.2f}; val LL: {val_ll:.2f}]"
             )
@@ -298,3 +321,4 @@ def construct_and_train_pc(rank, world_size, args):
                     ],
                 }
             ).to_csv(f"{name}.csv")
+            pd.DataFrame.from_records(lls_records).to_csv(f"{name}_metrics.csv")

@@ -16,11 +16,11 @@ params:
           params:
             patch_size: 16
             aligned: true
-        - target: pc_mini_em.src.transforms.RGB2YCoCgR
+        - target: pc_mini_em.src.transforms.Rgb2GenT
         - target: pc_mini_em.src.transforms.Flatten
   validation:
     target: pc_mini_em.src.data.ImageNet32Validation
-#    batched_item: true
+    #    batched_item: true
     params:
       root: ../datasets/ImageNet
       transform_fns:
@@ -31,9 +31,9 @@ params:
           params:
             patch_size: 16
             aligned: true
-#            all_patches: true
-        - target: pc_mini_em.src.transforms.RGB2YCoCgR
+        #            all_patches: true
+        - target: pc_mini_em.src.transforms.Rgb2GenT
         - target: pc_mini_em.src.transforms.Flatten
 #          params:
 #              batch_dim: true
- 
+

@@ -1,5 +1,7 @@
 import torch
 
+from torchvision import transforms
+
 
 class RGB2YCoCg:
     def __init__(self, channel_last=False, rgb_range=(-1, 1)):
@@ -77,6 +79,31 @@ class RGB2YCoCgR:
             return torch.stack((Y, Co, Cg), dim=0)
 
 
+class Rgb2GenT:
+    """Genaro's version of YCoCg-R"""
+
+    def __init__(self, channel_last=False, rgb_range=(-1, 1)):
+        self.channel_last = channel_last
+        self.rgb_range = rgb_range
+
+    @torch.compile()
+    def __call__(self, rgb_images: torch.Tensor):
+        assert rgb_images.size(0) == 3
+        # print("Before transform", rgb_images.min(), rgb_images.max())
+        rgb_images = ((rgb_images + 1) * 127.5).clamp(0, 255).long()
+        # print("After transform", rgb_images.min(), rgb_images.max())
+
+        def forward_lift(x, y):
+            diff = (y - x) % 256
+            average = (x + (diff >> 1)) % 256
+            return average, diff
+
+        red, green, blue = rgb_images[0, ...], rgb_images[1, ...], rgb_images[2, ...]
+        temp, co = forward_lift(red, blue)
+        y, cg = forward_lift(green, temp)
+        return torch.stack([y, co, cg], dim=0)
+
+
 class YCoCg2RGB:
     def __init__(self, channel_last=True):
         self.channel_last = channel_last
@@ -100,4 +127,3 @@ class YCoCg2RGB:
             return torch.stack((R, G, B), dim=2)
         else:
             return torch.stack((R, G, B), dim=0)
-

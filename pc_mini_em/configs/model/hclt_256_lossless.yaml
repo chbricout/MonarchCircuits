@@ -9,4 +9,4 @@ params:
   input_dist:
     target: pyjuice.distributions.Categorical
     params:
-      num_cats: 512
+      num_cats: 256
